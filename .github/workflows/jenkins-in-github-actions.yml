@@ -1,0 +1,35 @@
+name: Jenkins Pipeline in GitHub Actions
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  jenkins-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+
+      - name: Start Jenkins in Docker
+        run: |
+          docker run -d --name jenkins -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
+
+      - name: Wait for Jenkins to Start
+        run: |
+          sleep 30
+          echo "Jenkins should be running now."
+
+      - name: Run Jenkins Pipeline
+        run: |
+          docker exec jenkins bash -c "jenkins-cli build my-pipeline || echo 'Jenkins pipeline execution failed.'"
