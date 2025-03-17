@@ -10,25 +10,19 @@ on:
 
 jobs:
   jenkins-pipeline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Uses GitHub-hosted runner
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set Up Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-
       - name: Start Jenkins in Docker
         run: |
           docker run -d --name jenkins -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
+          sleep 60  # Increased wait time for Jenkins to start
 
-      - name: Wait for Jenkins to Start
-        run: |
-          sleep 30
-          echo "Jenkins should be running now."
+      - name: Verify Jenkins is Running
+        run: docker ps -a  # Lists running containers for debugging
 
       - name: Run Jenkins Pipeline
         run: |
